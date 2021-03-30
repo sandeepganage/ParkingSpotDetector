@@ -32,7 +32,7 @@ def GenerateTiles():
     if width % tile_Size == 0:
         tiles_Across = math.trunc(width / tile_Size)
     else:
-        tiles_Across = math.trunc(width / tile_Size)  + 1
+        tiles_Across = math.trunc(width / tile_Size) + 1
 
     if height % tile_Size == 0:
         tiles_Down = math.trunc(height / tile_Size)
@@ -72,12 +72,3 @@ def cyclic_learning_rates():
         print(epoch," : ", lr)
 
 # cyclic_learning_rates()
-
-
-def test_url():
-    capture = cv2.VideoCapture('rtsp://admin:CPPJNPT@123@122.200.22.250:8003')
-    ret, tile = capture.read()
-    if ret == False:
-        print("NoFile")
-
-test_url()
