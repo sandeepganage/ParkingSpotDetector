@@ -17,8 +17,8 @@ while True:
         counter = 0
         # capture = cv2.VideoCapture('rtsp://admin:p@$$w0rd123@122.200.22.250:8003')
         # capture = cv2.VideoCapture('rtsp://admin:CPPJNPT@123@192.168.1.110:8003/video')
-        capture = cv2.VideoCapture('rtsp://192.168.1.109:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream')
-        # capture = cv2.VideoCapture('rtsp://192.168.1.110:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream')
+        # capture = cv2.VideoCapture('rtsp://192.168.1.109:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream')
+        capture = cv2.VideoCapture('rtsp://192.168.1.110:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream')
         if not capture.isOpened():
             print("Can't open stream/file")
         else:
@@ -31,7 +31,7 @@ while True:
             tile_number = tile_number[0] + "_" + tile_number[1]
             tile_number = tile_number.split(".")[0]
             tile_number = tile_number.replace(":", "_")
-            cv2.imwrite("C:/Users/Public/Pictures/Cam2/30thMarch/" + tile_number + ".png", tile)
+            cv2.imwrite("C:/Users/Public/Pictures/Cam1/1stApril/" + tile_number + ".png", tile)
             print(tile_number)
             time.sleep(120)
             cv2.destroyAllWindows()

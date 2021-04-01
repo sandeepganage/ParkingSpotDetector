@@ -10,6 +10,8 @@ import json
 
 global config
 
+StaticMode = False
+saveDebugRes = True
 
 class myMaskRCNNConfig(Config):
     # give the configuration a recognizable name
@@ -63,36 +65,43 @@ def execute():
             cam = config.Active_Cams.get(key)
             cam_login = cam.cam_ip
             capture = cv2.VideoCapture(cam_login)
-            ret = None
-            image = None
             if not capture.isOpened():
-                print("Streaming for Cam : %d", key)
+                print("Streaming for working for Cam : %d", key)
                 # print()
             else:
                 ret, image = capture.read()
-                # image = "C:/PSD/input/01_20210315_134832.bmp"
-                # image = "D:/DataOnly/ParkingManagement/Cam1/debug/input/0311_152948.bmp"
-                # image = cv2.imread(image)
-                image[cam.globalMaskImage == 0] = 0
 
-                tiles = GenerateTiles2(image, cam.index, 1296)
-                tiles = resize_Tiles(tiles)
+                if StaticMode:
+                    image = "C:/ParkingSpotDetector/data/"+str(key)+"Ref.png"
+                    image = cv2.imread(image)
 
-                mask_list = []
-                for tile in tiles:
-                    img = img_to_array(tile)
-                    results = model.detect([img], verbose=1)
-                    r = results[0]
-                    # visualize.display_instances(img, r['rois'], r['masks'], r['class_ids'], r['scores'], title="Predictions")
-                    masks = r['masks']
-                    mask_list.append(masks)
-                    print()
-                dlOut = stitch_tiles(mask_list, cam.index, 1296)
-                ipOut = cam1_IP(image, dlOut)
-                getSpotResults(ipOut, cam)
-                config.Active_Cams[key] = cam
-                save_result()
+                if not ret:
+                    print("Image capture failed for camera : ", key)
 
+                else:
+                    image[cam.globalMaskImage == 0] = 0
+
+                    tiles = GenerateTiles2(image, cam.index, 1296)
+                    tiles = resize_Tiles(tiles)
+
+                    mask_list = []
+                    for tile in tiles:
+                        img = img_to_array(tile)
+                        results = model.detect([img], verbose=1)
+                        r = results[0]
+                        # visualize.display_instances(img, r['rois'], r['masks'], r['class_ids'], r['scores'], title="Predictions")
+                        masks = r['masks']
+                        mask_list.append(masks)
+                        print()
+                    dlOut = stitch_tiles(mask_list, cam.index, 1296)
+                    ipOut = cam1_IP(image, dlOut)
+                    getSpotResults(ipOut, cam)
+                    config.Active_Cams[key] = cam
+                    save_result()
+                    if saveDebugRes:
+                        cv2.imwrite("D:/temp/cam"+str(key)+"/1_rgb.png",image)
+                        cv2.imwrite("D:/temp/cam" + str(key) + "/2_DL_Out.png", dlOut)
+                        cv2.imwrite("D:/temp/cam" + str(key) + "/3_IP_Out.png", ipOut)
 
 
 def save_result():

@@ -236,11 +236,14 @@ def getSpotResults(IP_Out, cam):
         spot_dl_count = np.count_nonzero(img)
         mask_area = np.count_nonzero(mask)
         occupied_percent = (spot_dl_count / mask_area) * 100
-        # print("Area : ", mask_area, "    occupied_pixels : ", spot_dl_count, "    occupied_percent : ", occupied_percent)
+
         if occupied_percent > decision_threshold:
             cam.isSpotOccupied[key] = True          #Parking Spot Occupied
         else:
             cam.isSpotOccupied[key] = False         #Parking Spot Not Occupied
+
+        print("Spot : ", str(cam.index) + "_" + str(key), " : Area : ", mask_area, "    occupied_pixels : ",
+              spot_dl_count, "    occupied_percent : ", occupied_percent, "  Result : ",cam.isSpotOccupied[key])
 
 def fun12():
     deep_out = cv2.imread("D:/DataOnly/ParkingManagement/Cam1/debug/DL.png", cv2.IMREAD_GRAYSCALE)
