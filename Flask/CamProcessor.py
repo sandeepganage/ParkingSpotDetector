@@ -10,8 +10,8 @@ import json
 
 global config
 
-StaticMode = True
-saveDebugRes = True
+StaticMode = False
+saveDebugRes = False
 
 
 class myMaskRCNNConfig(Config):
