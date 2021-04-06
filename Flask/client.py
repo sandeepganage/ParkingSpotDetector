@@ -25,11 +25,11 @@ def main():
     pvalue = "0"
 
     url = IP + ":" + PORT + "/" + API
-    response = requests.post(url).json()
-    print(response)
 
     count = 0
     while True:
+        response = requests.post(url).json()
+        print(response)
         time.sleep(5)
         if count == 2:
             print(count)
@@ -40,6 +40,7 @@ def main():
             for key in response:
                 result = response.get(key)
                 # print(result)
+                print(response)
                 for spot_result in result:
                     # print(spot_result)
                     # print(result.get(spot_result))
@@ -62,6 +63,7 @@ def main():
 
                     cursor.execute("UPDATE Hourly_Parking_Statistics SET [Date] = getdate(), IsOccupied = " + pvalue + " WHERE ParkingId = '" + str(pid) + "' AND Camera = '" + cam + "'")
                     conn.commit()
+
 
         count += 1
 

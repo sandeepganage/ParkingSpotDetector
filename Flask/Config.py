@@ -1,5 +1,5 @@
 import json
-#from gpuinfo.nvidia import get_gpus
+from gpuinfo.nvidia import get_gpus
 import os
 import Networks
 from util.util import userID, available_cams, password, DIR, cam_dimension
@@ -112,15 +112,15 @@ class ConfigServer():
             cam.generate_parking_spots()
             self.Active_Cams[key] = cam
 
-        # for gpu in get_gpus():
-        #     dict = gpu.__dict__
-        #     mcs = gpu.get_max_clock_speeds()
-        #     cs = gpu.get_clock_speeds()
-        #     mem = gpu.get_memory_details()
-        #
-        #     dev = GPU(dict.get('index'),
-        #               dict.get('name'),
-        #               dict.get('total_memory'),
-        #               mem.get('used_memory'),
-        #               mem.get('free_memory'))
-        #     self.GPU_Devices.append(dev)
+        for gpu in get_gpus():
+            dict = gpu.__dict__
+            mcs = gpu.get_max_clock_speeds()
+            cs = gpu.get_clock_speeds()
+            mem = gpu.get_memory_details()
+
+            dev = GPU(dict.get('index'),
+                      dict.get('name'),
+                      dict.get('total_memory'),
+                      mem.get('used_memory'),
+                      mem.get('free_memory'))
+            self.GPU_Devices.append(dev)

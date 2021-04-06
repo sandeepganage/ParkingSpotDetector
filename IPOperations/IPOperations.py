@@ -185,8 +185,8 @@ def cam1_IP(inpRGB, prediction):
     return out
 
 
-def cam1_IP(inpRGB, dl_out):
-    out_dir = "D:/DataOnly/ParkingManagement/Cam1/debug/"
+def cam1_IP(inpRGB, dl_out, camID):
+    out_dir = "D:/debug/"+"cam"+str(camID)+"/"
     save_result = False
 
     if save_result:
@@ -208,7 +208,7 @@ def cam1_IP(inpRGB, dl_out):
     if save_result:
         cv2.imwrite(out_dir + "2_otsu.png", thresh)
 
-    kernel = np.ones((3, 3), np.uint8)
+    kernel = np.ones((10, 10), np.uint8)
     dl_out = cv2.morphologyEx(dl_out, cv2.MORPH_ERODE, kernel)
     if save_result:
         cv2.imwrite(out_dir + "3_ErodeDL.png", dl_out)
@@ -244,6 +244,7 @@ def getSpotResults(IP_Out, cam):
 
         print("Spot : ", str(cam.index) + "_" + str(key), " : Area : ", mask_area, "    occupied_pixels : ",
               spot_dl_count, "    occupied_percent : ", occupied_percent, "  Result : ",cam.isSpotOccupied[key])
+
 
 def fun12():
     deep_out = cv2.imread("D:/DataOnly/ParkingManagement/Cam1/debug/DL.png", cv2.IMREAD_GRAYSCALE)

@@ -17,6 +17,7 @@ def process_cam_request():
     with open(file) as f:
         data = json.load(f)
 
+    print(data)
     return data
 
 

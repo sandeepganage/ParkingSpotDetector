@@ -10,8 +10,9 @@ import json
 
 global config
 
-StaticMode = False
+StaticMode = True
 saveDebugRes = True
+
 
 class myMaskRCNNConfig(Config):
     # give the configuration a recognizable name
@@ -47,8 +48,8 @@ def execute():
     config.configure()
     save_result()
 
-    # dev = config.GPU_Devices[0]
-    # os.environ["CUDA_VISIBLE_DEVICES"] = str(dev.index)
+    dev = config.GPU_Devices[0]
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(dev.index)
 
     modelConfig = myMaskRCNNConfig()
     modelConfig.display()
@@ -66,7 +67,7 @@ def execute():
             cam_login = cam.cam_ip
             capture = cv2.VideoCapture(cam_login)
             if not capture.isOpened():
-                print("Streaming for working for Cam : %d", key)
+                print("Streaming Not for working for Cam : %d", key)
                 # print()
             else:
                 ret, image = capture.read()
@@ -94,7 +95,7 @@ def execute():
                         mask_list.append(masks)
                         print()
                     dlOut = stitch_tiles(mask_list, cam.index, 1296)
-                    ipOut = cam1_IP(image, dlOut)
+                    ipOut = cam1_IP(image, dlOut, key)
                     getSpotResults(ipOut, cam)
                     config.Active_Cams[key] = cam
                     save_result()
