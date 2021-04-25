@@ -6,8 +6,8 @@ import os, glob
 
 
 def GenerateTiles2(img, camID, tile_size):
-    width = cam_dimension.get(camID)[1]
-    height = cam_dimension.get(camID)[0]
+    width = cam_dimension[1]
+    height = cam_dimension[0]
 
     temp = np.zeros((height, height * 2, 3), dtype=np.uint8)
     temp[:, :width, :] = img[:, :, :]
@@ -75,8 +75,8 @@ def GenerateTiles(img1, camID, tile_size, image_name):
 
 
 def stitch_tiles(mask_list, camID, tile_size):
-    width = cam_dimension.get(camID)[1]
-    height = cam_dimension.get(camID)[0]
+    width = cam_dimension[1]
+    height = cam_dimension[0]
 
     tile_list = []
     for mask in mask_list:

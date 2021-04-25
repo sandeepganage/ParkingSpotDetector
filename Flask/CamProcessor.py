@@ -11,8 +11,8 @@ import json
 global config
 
 StaticMode = False
-saveDebugRes = False
-
+saveDebugRes = True
+debugSavePath = "D:/temp/"
 
 class myMaskRCNNConfig(Config):
     # give the configuration a recognizable name
@@ -100,9 +100,12 @@ def execute():
                     config.Active_Cams[key] = cam
                     save_result()
                     if saveDebugRes:
-                        cv2.imwrite("D:/temp/cam"+str(key)+"/1_rgb.png",image)
-                        cv2.imwrite("D:/temp/cam" + str(key) + "/2_DL_Out.png", dlOut)
-                        cv2.imwrite("D:/temp/cam" + str(key) + "/3_IP_Out.png", ipOut)
+                        dir_path = debugSavePath + "cam" + str(key)
+                        if not os.path.exists(dir_path):
+                            os.makedirs(dir_path)
+                        cv2.imwrite(dir_path + "/1_rgb.png",image)
+                        cv2.imwrite(dir_path + "/2_DL_Out.png", dlOut)
+                        cv2.imwrite(dir_path + "/3_IP_Out.png", ipOut)
 
 
 def save_result():

@@ -47,7 +47,7 @@ class Cam():
 
     def generate_global_mask(self):
         global_mask_file = DIR + "/data/" + str(self.index) + "_GlobalMask.json"
-        mask_dim = cam_dimension.get(self.index)
+        mask_dim = cam_dimension
         mask = np.zeros(mask_dim, dtype=np.uint8)
 
         with open(global_mask_file) as f:
