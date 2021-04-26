@@ -1,6 +1,8 @@
 
 DIR = "C:/ParkingSpotDetector/"
 DIR_DATA = "C:/ParkingSpotDetector/data/"
+IMG_OUT_SAVE_PATH = DIR_DATA + "camOut/"
+
 userID = 'admin'
 password = 'CPPJNPT@123'
 available_cams = {1: "rtsp://192.168.1.110:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
@@ -10,6 +12,7 @@ available_cams = {1: "rtsp://192.168.1.110:554/user=admin_password=oyXv12aW_chan
                   5: "rtsp://192.168.0.109:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
                   6: "rtsp://192.168.0.107:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
                   7: "rtsp://192.168.0.110:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
+                  16: "rtsp://192.168.0.119:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
                   22: "rtsp://192.168.0.127:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream"}
 
 cam_dimension = (1296, 2304)

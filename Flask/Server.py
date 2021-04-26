@@ -21,5 +21,17 @@ def process_cam_request():
     return data
 
 
+@app.route('/get_active_cams', methods=['POST'])
+def get_available_cams():
+    file = DIR_DATA + 'activeCams.json'
+    mtime = time.ctime(os.path.getmtime(file))
+    print(mtime)
+    with open(file) as f:
+        data = json.load(f)
+
+    print(data)
+    return data
+
+
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

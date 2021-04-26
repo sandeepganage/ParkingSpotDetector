@@ -246,11 +246,14 @@ def getSpotResults(IP_Out, cam):
               spot_dl_count, "    occupied_percent : ", occupied_percent, "  Result : ",cam.isSpotOccupied[key])
 
 
+def getSpotResultsAllFalse(cam):
+    for key in cam.parking_spots:
+        cam.isSpotOccupied[key] = False
+
+
 def fun12():
     deep_out = cv2.imread("D:/DataOnly/ParkingManagement/Cam1/debug/DL.png", cv2.IMREAD_GRAYSCALE)
     img = cv2.imread("D:/DataOnly/ParkingManagement/Cam1/debug/RGB.png")
-    # img = cv2.imread("D:/DataOnly\ParkingManagement/Cam1/testing/01_20210315_134832.bmp")
-    # img = cv2.imread("D:/DataOnly\ParkingManagement/Cam1/debug/input/0311_152948.bmp")
     cam1_IP(img, deep_out)
 
 # fun12()
