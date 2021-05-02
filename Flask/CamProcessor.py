@@ -86,27 +86,8 @@ def execute(working_cams):
                         image = cv2.imread(image)
 
                     else:
-                        global_mask_file = DIR_DATA + str(key) + "_GlobalMask.json"
                         image = image.astype(np.uint8)
-
-                        with open(global_mask_file) as f:
-                            data = json.load(f)
-
-                        pts = []
-                        for key in data:
-                            regions = data.get(key).get('regions')
-
-                            for region in regions:
-                                xList = region.get('shape_attributes').get('all_points_x')
-                                yList = region.get('shape_attributes').get('all_points_y')
-
-                                for i in range(len(xList)):
-                                    pt = (xList[i], yList[i])
-                                    pts.append(pt)
-
-                                pts = np.array([pts], dtype=np.int32)
-                                pts = np.array([pts], dtype=np.int32)
-                        cv2.polylines(image, pts, True, (0, 255, 0), thickness=3)
+                        cv2.polylines(image, cam.globalMaskPoints, True, (0, 255, 0), thickness=3)
                         cv2.imwrite(dir_path + "/0_rgb.jpg", image)
 
                         image[cam.globalMaskImage == 0] = 0

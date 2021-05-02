@@ -46,7 +46,7 @@ class Cam():
         self.last_processed_output = None
 
     def generate_global_mask(self):
-        global_mask_file = DIR + "/data/" + str(self.index) + "_GlobalMask.json"
+        global_mask_file = DIR + "/data/" + str(self.index) + ".json"
         mask_dim = cam_dimension
         mask = np.zeros(mask_dim, dtype=np.uint8)
 
@@ -57,23 +57,24 @@ class Cam():
             regions = data.get(key).get('regions')
 
             for region in regions:
-                xList = region.get('shape_attributes').get('all_points_x')
-                yList = region.get('shape_attributes').get('all_points_y')
+                if region.get('region_attributes').get('Object') == 'Mask':
+                    xList = region.get('shape_attributes').get('all_points_x')
+                    yList = region.get('shape_attributes').get('all_points_y')
 
-                pts = []
-                for i in range(len(xList)):
-                    pt = (xList[i], yList[i])
-                    pts.append(pt)
+                    pts = []
+                    for i in range(len(xList)):
+                        pt = (xList[i], yList[i])
+                        pts.append(pt)
 
-                pts = np.array([pts], dtype=np.int32)
-                pts = np.array([pts], dtype=np.int32)
-                cv2.fillPoly(mask, pts, (255, 255, 255))
+                    pts = np.array([pts], dtype=np.int32)
+                    pts = np.array([pts], dtype=np.int32)
+                    cv2.fillPoly(mask, pts, (255, 255, 255))
 
         self.globalMaskPoints = pts
         self.globalMaskImage = mask
 
     def generate_parking_spots(self):
-        parking_spot_file = DIR + "/data/" + str(self.index) + "_ParkingSpots.json"
+        parking_spot_file = DIR + "/data/" + str(self.index) + ".json"
 
         with open(parking_spot_file) as f:
             data = json.load(f)
@@ -84,17 +85,18 @@ class Cam():
             regions = data.get(key).get('regions')
 
             for region in regions:
-                parking_spot_id = region.get('region_attributes').get('Object')
-                xList = region.get('shape_attributes').get('all_points_x')
-                yList = region.get('shape_attributes').get('all_points_y')
+                if not region.get('region_attributes').get('Object') == 'Mask':
+                    parking_spot_id = region.get('region_attributes').get('Object')
+                    xList = region.get('shape_attributes').get('all_points_x')
+                    yList = region.get('shape_attributes').get('all_points_y')
 
-                pts = []
-                for i in range(len(xList)):
-                    pt = (xList[i], yList[i])
-                    pts.append(pt)
-                pts = np.array([pts], dtype=np.int32)
-                parking_spots[parking_spot_id] = pts
-                isOccupied[parking_spot_id] = False
+                    pts = []
+                    for i in range(len(xList)):
+                        pt = (xList[i], yList[i])
+                        pts.append(pt)
+                    pts = np.array([pts], dtype=np.int32)
+                    parking_spots[parking_spot_id] = pts
+                    isOccupied[parking_spot_id] = False
 
         self.parking_spots = parking_spots
         self.isSpotOccupied = isOccupied
