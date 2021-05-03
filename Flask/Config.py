@@ -53,6 +53,7 @@ class Cam():
         with open(global_mask_file) as f:
             data = json.load(f)
 
+        pts = []
         for key in data:
             regions = data.get(key).get('regions')
 
@@ -61,7 +62,6 @@ class Cam():
                     xList = region.get('shape_attributes').get('all_points_x')
                     yList = region.get('shape_attributes').get('all_points_y')
 
-                    pts = []
                     for i in range(len(xList)):
                         pt = (xList[i], yList[i])
                         pts.append(pt)
