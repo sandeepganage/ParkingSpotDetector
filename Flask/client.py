@@ -3,15 +3,21 @@ import requests
 import pyodbc
 import time
 import os
-import numpy as np
-import io
 from util.util import IMG_OUT_SAVE_PATH, DIR_DATA
 
-server = 'aaditechdb.database.windows.net'
-database = 'JNPT_QA'
-username = 'aaditechadmin'
-password = 'AadiTech@123'
-print('hi')
+# "MyProjectConnection": "server=tcp:rit-dbsvr-01.database.windows.net;database=JNPT;User id=ritdbadmin@rit-dbsvr-01;password=Aez@3105.db"
+
+
+server = 'tcp:rit-dbsvr-01.database.windows.net'
+database = 'JNPT'
+username = 'ritdbadmin@rit-dbsvr-01'
+password = 'Aez@3105.db'
+
+# server = 'aaditechdb.database.windows.net'
+# database = 'JNPT_QA'
+# username = 'aaditechadmin'
+# password = 'AadiTech@123'
+
 conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=' + server + ';DATABASE=' + database + ';UID=' + username + ';PWD=' + password)
 cursor = conn.cursor()
 # conn = pyodbc.connect("DRIVER={SQL Server}; SERVER=localhost\SQLEXPRESS; Database=ParkingAi; trusted_connection=YES;")
@@ -20,52 +26,16 @@ cursor = conn.cursor()
 IP = 'http://127.0.0.1'
 PORT = '5000'
 API = 'get_parking_results'
-cameraip = ['rtsp://192.168.1.110:554', 'rtsp://192.168.1.109:554', 'rtsp://192.168.0.102:554',
-            'rtsp://192.168.0.103:554', 'rtsp://192.168.0.109:554', 'rtsp://192.168.0.107:554',
-            'rtsp://192.168.0.110:554', 'rtsp://192.168.0.119:554', 'rtsp://192.168.0.120:554',
-            'rtsp://192.168.0.123:554', 'rtsp://192.168.0.124:554', 'rtsp://192.168.0.125:554',
-            'rtsp://192.168.0.126:554', 'rtsp://192.168.0.127:554', 'rtsp://192.168.0.202:554']
+API_CamStatus = 'get_active_cams'
 
-
-def storedb1(index):
-    counterNew = int(index) - 1
-    if index == "22":
-        counterNew = 7
-        print('=22 - ' + str(counterNew))
-
-    global cameraip
-    capture = cv2.VideoCapture(cameraip[counterNew] + "/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream")
-    ret, image = capture.read()
-    print(type(image))
-
-    scale_percent = 20  # percent of original size
-    width = int(image.shape[1] * scale_percent / 100)
-    height = int(image.shape[0] * scale_percent / 100)
-    dim = (width, height)
-
-    # resize image
-    resized = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
-    os.chdir(r'C:\ParkingSpotDetector\Flask\img')
-    cv2.imwrite('a.jpg', resized)
-    print('/img/a.jpg')
-    retval, buffer = cv2.imencode('.jpg', resized)
-    with open("a.jpg", "rb") as image:
-        image_readed = image.read()
-        Byte_image = bytearray(image_readed)
-   # newImage = base64.b64encode(resized)
-
-
-    #capture.release();
-
-    cursor.execute("UPDATE Parking_Image SET UpdateTime = getdate() , LatestImage = ? WHERE Camera = ?", Byte_image, str(index));
-    print(index)
-    conn.commit();
+# dict = {'1':'1', '13':'2', '21':'3', '23':'4', '24':'5', '34':'6', '42':'7', '43':'8', '56':'9', '57':'10',
+#         '58':'11', '59':'12', '62':'13', '63':'14', '64':'15', '65':'16', '67':'17'}
 
 
 def storedb(key):
-    CAM_IMG_PATH = IMG_OUT_SAVE_PATH + "cam" + str(key) + "/0_rgb.jpg"
+    CAM_IMG_PATH = str(IMG_OUT_SAVE_PATH) + "cam" + str(str(key).split("C")[1]) + "/0_rgb.jpg"
     image = cv2.imread(CAM_IMG_PATH)
-
+    print(CAM_IMG_PATH)
     scale_percent = 20  # percent of original size
     width = int(image.shape[1] * scale_percent / 100)
     height = int(image.shape[0] * scale_percent / 100)
@@ -79,16 +49,13 @@ def storedb(key):
 
 
 def main():
-    cam = ""
-    pid = ""
-    p_value = ""
-    pvalue = "0"
-
     url = IP + ":" + PORT + "/" + API
+    url_camStatus = IP + ":" + PORT + "/" + API_CamStatus
 
     count = 0
     while True:
         response = requests.post(url).json()
+        response_camStatus = requests.post(url_camStatus).json()
         print(response)
         if count == 2:
             print(count)
@@ -101,6 +68,10 @@ def main():
                 result = response.get(key)
                 # print(result)
                 print(response)
+
+                cam_status = 0
+                if response_camStatus.get(key):
+                    cam_status = 1
                 for spot_result in result:
                     pid = spot_result
                     p_value = result.get(spot_result)
@@ -109,11 +80,10 @@ def main():
                         pvalue = "1"
                     else:
                         pvalue = "0"
-                    cam = "C" + key
 
                     # print("UPDATE Hourly_Parking_Statistics SET [Date] = getdate(), IsOccupied = " + pvalue + " WHERE ParkingId = '" + str(pid) + "' AND Camera = '" + cam + "'")
 
-                    cursor.execute("UPDATE Hourly_Parking_Statistics SET [Date] = getdate(), IsOccupied = " + pvalue + " WHERE ParkingId = '" + str(pid) + "' AND Camera = '" + cam + "'")
+                    cursor.execute("UPDATE Hourly_Parking_Statistics SET [Date] = getdate(), IsOccupied = " + pvalue + " WHERE ParkingId = '" + str(pid) + "' AND Camera = '" + key + "'")
                     conn.commit()
 
         time.sleep(10)

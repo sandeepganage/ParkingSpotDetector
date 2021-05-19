@@ -1,17 +1,12 @@
-import multiprocessing
-import time
-from threading import Lock
 from mrcnn.config import Config
-from Flask.Config import ConfigServer
+from Flask.Config import ConfigServer, get_working_cams, save_result, clean_jsons
 from mrcnn import model as modellib
 from keras.preprocessing.image import img_to_array
 from IPOperations.IPOperations import cam1_IP, getSpotResults, getSpotResultsAllFalse
 from Mask.tileUtility import *
 from util.util import DIR_DATA, IMG_OUT_SAVE_PATH
 import cv2
-import json
-
-global config
+# global config
 
 StaticDebugMode = False
 saveDebugRes = True
@@ -45,11 +40,11 @@ class myMaskRCNNConfig(Config):
     IMAGE_MAX_DIM = 1536
 
 
-def execute(working_cams):
-    global config
+def execute():
+    # global config
     config = ConfigServer()
     config.configure()
-    save_result()
+    save_result(config)
 
     dev = config.GPU_Devices[0]
     os.environ["CUDA_VISIBLE_DEVICES"] = str(dev.index)
@@ -65,12 +60,12 @@ def execute(working_cams):
     model.load_weights(MODEL_PATH, by_name=True)
 
     while True:
+        working_cams = get_working_cams()
         for key in config.Active_Cams:
             dir_path = IMG_OUT_SAVE_PATH + "cam" + str(key)
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
             cam = config.Active_Cams.get(key)
-
             isCamUP = working_cams.get(key)
             if isCamUP:
                 capture = cv2.VideoCapture(cam.cam_ip)
@@ -120,61 +115,9 @@ def execute(working_cams):
                 getSpotResultsAllFalse(cam)
                 print("Streaming Not for working for Cam : %d", key)
 
-            save_result()
-
-
-def save_result():
-    global config
-    dict = {}
-    for key in config.Active_Cams:
-        cam = config.Active_Cams.get(key)
-        cam_id = cam.index
-        dict[cam_id] = cam.isSpotOccupied
-    with open(DIR_DATA + 'result.json', 'w') as json_file:
-        json.dump(dict, json_file)
-
-
-mutex = Lock()
-
-
-def func(key, ip, cam_status, mutex):
-    capture = cv2.VideoCapture(ip)
-    ret, frame = capture.read()
-    print("Available : ", ret)
-    if ret:
-        mutex.acquire()
-        cam_status[key] = True
-        mutex.release()
-
-
-def get_working_cams():
-    manager = multiprocessing.Manager()
-    mutex = manager.Lock()
-    cam_status = manager.dict()
-
-    for key in available_cams:
-        cam_status[key] = False
-
-    print(cam_status)
-    running_processes = []
-    for key in available_cams:
-        ip = available_cams.get(key)
-        process = multiprocessing.Process(target=func, args=(key, ip, cam_status, mutex,))
-        process.start()
-        running_processes.append(process)
-
-    time.sleep(10)
-
-    for process in running_processes:
-        process.terminate()
-    print("-----------------------------------------------------------------")
-    print(cam_status)
-    return cam_status
+            save_result(config)
 
 
 if __name__ == '__main__':
-    working_cams = get_working_cams()
-    with open(DIR_DATA + 'activeCams.json', 'w') as json_file:
-        json.dump(working_cams.copy(), json_file)
-
-    execute(working_cams)
+    clean_jsons()
+    execute()

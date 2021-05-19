@@ -1,10 +1,15 @@
-import json
+from threading import Lock
 from gpuinfo.nvidia import get_gpus
-import os
-import Networks
-from util.util import userID, available_cams, password, DIR, cam_dimension
+from collections import OrderedDict
+from util.util import available_cams, DIR, cam_dimension
+from util.util import DIR_DATA, IMG_OUT_SAVE_PATH
+import json
+import natsort
 import numpy as np
+import multiprocessing
+import time
 import cv2
+import os
 
 
 class GPU():
@@ -87,6 +92,7 @@ class Cam():
             for region in regions:
                 if not region.get('region_attributes').get('Object') == 'Mask':
                     parking_spot_id = region.get('region_attributes').get('Object')
+                    parking_spot_id = parking_spot_id.replace("\n", "")
                     xList = region.get('shape_attributes').get('all_points_x')
                     yList = region.get('shape_attributes').get('all_points_y')
 
@@ -100,6 +106,8 @@ class Cam():
 
         self.parking_spots = parking_spots
         self.isSpotOccupied = isOccupied
+        self.parking_spots = OrderedDict(natsort.natsorted(self.parking_spots.items()))
+        self.isSpotOccupied = OrderedDict(natsort.natsorted(self.isSpotOccupied.items()))
 
 
 class ConfigServer():
@@ -126,3 +134,60 @@ class ConfigServer():
                       mem.get('used_memory'),
                       mem.get('free_memory'))
             self.GPU_Devices.append(dev)
+
+
+mutex = Lock()
+
+
+def func(key, ip, cam_status, mutex):
+    capture = cv2.VideoCapture(ip)
+    ret, frame = capture.read()
+    if ret:
+        mutex.acquire()
+        cam_status[key] = True
+        mutex.release()
+
+
+def get_working_cams():
+    manager = multiprocessing.Manager()
+    mutex = manager.Lock()
+    cam_status = manager.dict()
+
+    for key in available_cams:
+        cam_status[key] = False
+
+    print(cam_status)
+    running_processes = []
+    for key in available_cams:
+        ip = available_cams.get(key)
+        process = multiprocessing.Process(target=func, args=(key, ip, cam_status, mutex,))
+        process.start()
+        running_processes.append(process)
+
+    time.sleep(15)
+
+    for process in running_processes:
+        process.terminate()
+    print(cam_status)
+    with open(DIR_DATA + 'activeCams.json', 'w') as json_file:
+        json.dump(cam_status.copy(), json_file)
+
+    return cam_status
+
+
+def save_result(config):
+    dict = {}
+    for key in config.Active_Cams:
+        cam = config.Active_Cams.get(key)
+        cam_id = cam.index
+        cam_id_str = "C" + str(cam_id)
+        dict[cam_id_str] = cam.isSpotOccupied
+    with open(DIR_DATA + 'result.json', 'w') as json_file:
+        json.dump(dict, json_file)
+
+
+def clean_jsons():
+    if os.path.exists(DIR_DATA + 'result.json'):
+        os.remove(DIR_DATA + 'result.json')
+    if os.path.exists(DIR_DATA + 'activeCams.json'):
+        os.remove(DIR_DATA + 'activeCams.json')

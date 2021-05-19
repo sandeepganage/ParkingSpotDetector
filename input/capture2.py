@@ -18,7 +18,7 @@ while True:
         # capture = cv2.VideoCapture('rtsp://admin:p@$$w0rd123@122.200.22.250:8003')
         # capture = cv2.VideoCapture('rtsp://admin:CPPJNPT@123@192.168.1.110:8003/video')
         # capture = cv2.VideoCapture('rtsp://192.168.1.109:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream')
-        capture = cv2.VideoCapture('rtsp://192.168.0.127:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream')
+        capture = cv2.VideoCapture('rtsp://192.168.0.121:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream')
         if not capture.isOpened():
             print("Can't open stream/file")
         else:
