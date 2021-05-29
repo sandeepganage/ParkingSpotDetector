@@ -13,10 +13,10 @@ database = 'JNPT'
 username = 'ritdbadmin@rit-dbsvr-01'
 password = 'Aez@3105.db'
 
-# server = 'aaditechdb.database.windows.net'
-# database = 'JNPT_QA'
-# username = 'aaditechadmin'
-# password = 'AadiTech@123'
+#server = 'aaditechdb.database.windows.net'
+#database = 'JNPT_QA'
+#username = 'aaditechadmin'
+#password = 'AadiTech@123'
 
 conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=' + server + ';DATABASE=' + database + ';UID=' + username + ';PWD=' + password)
 cursor = conn.cursor()
@@ -32,8 +32,8 @@ API_CamStatus = 'get_active_cams'
 #         '58':'11', '59':'12', '62':'13', '63':'14', '64':'15', '65':'16', '67':'17'}
 
 
-def storedb(key):
-    CAM_IMG_PATH = str(IMG_OUT_SAVE_PATH) + "cam" + str(str(key).split("C")[1]) + "/0_rgb.jpg"
+def storedb(key, camIP,isCamUP):
+    CAM_IMG_PATH = str(IMG_OUT_SAVE_PATH) + str(key) + "/0_rgb.jpg"
     image = cv2.imread(CAM_IMG_PATH)
     print(CAM_IMG_PATH)
     scale_percent = 20  # percent of original size
@@ -43,8 +43,22 @@ def storedb(key):
 
     resized = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
     image_bytes = cv2.imencode('.jpg', resized)[1].tobytes()
+    #print("UPDATE Parking_Image SET UpdateTime = getdate()  WHERE  image_bytes, str(key)" + str(key) + str(camIP) + isCamUP)
+    #cursor.execute("UPDATE Parking_Image SET UpdateTime = getdate() , LatestImage = ?, IPAddress = ?, IsLive = ? WHERE Camera = ?", image_bytes, str(camIP), isCamUP, str(key));
 
-    cursor.execute("UPDATE Parking_Image SET UpdateTime = getdate() , LatestImage = ? WHERE Camera = ?", image_bytes, str(key));
+    retry_flag = True
+    retry_count = 0
+    while retry_flag and retry_count < 5:
+        try:
+            cursor.execute(
+                "UPDATE Parking_Image SET UpdateTime = getdate() , LatestImage = ?, IsLive = ? WHERE Camera = ?",
+                image_bytes, isCamUP, str(key));
+            retry_flag = False
+        except:
+            print("Retry after 1 sec")
+            retry_count = retry_count + 1
+            time.sleep(1)
+
     conn.commit();
 
 
@@ -56,6 +70,7 @@ def main():
     while True:
         response = requests.post(url).json()
         response_camStatus = requests.post(url_camStatus).json()
+        response_camStatus = requests.post(url_camStatus).json()
         print(response)
         if count == 2:
             print(count)
@@ -63,8 +78,17 @@ def main():
             # logic part
             # For Loop
 
+            strQuery = ""
             for key in response:
-                storedb(key)
+                tuple = response_camStatus.get(key)
+                isCamUP = tuple[0]
+                camIP = str(tuple[1])
+
+                if isCamUP:
+                    isCamUP = "1"
+                else:
+                    isCamUP = "0"
+                storedb(key, camIP,isCamUP)
                 result = response.get(key)
                 # print(result)
                 print(response)
@@ -83,8 +107,23 @@ def main():
 
                     # print("UPDATE Hourly_Parking_Statistics SET [Date] = getdate(), IsOccupied = " + pvalue + " WHERE ParkingId = '" + str(pid) + "' AND Camera = '" + cam + "'")
 
-                    cursor.execute("UPDATE Hourly_Parking_Statistics SET [Date] = getdate(), IsOccupied = " + pvalue + " WHERE ParkingId = '" + str(pid) + "' AND Camera = '" + key + "'")
-                    conn.commit()
+                    # isCamUP =  : Camera down / up
+                    # camIP = Camera IP
+                    strQuery = strQuery + "UPDATE Hourly_Parking_Statistics SET [Date] = getdate(), IsOccupied = " + pvalue + " WHERE ParkingId = '" + str(pid) + "' AND Camera = '" + key + "';"
+
+                print(strQuery)
+                retry_flag = True
+                retry_count = 0
+                while retry_flag and retry_count < 5:
+                    try:
+                        cursor.execute(strQuery)
+                        retry_flag = False
+                    except:
+                        print("Retry after 1 sec")
+                        retry_count = retry_count + 1
+                        time.sleep(1)
+
+                conn.commit()
 
         time.sleep(10)
         count += 1

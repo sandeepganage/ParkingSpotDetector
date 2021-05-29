@@ -1,3 +1,4 @@
+from builtins import str
 from threading import Lock
 from gpuinfo.nvidia import get_gpus
 from collections import OrderedDict
@@ -80,6 +81,7 @@ class Cam():
 
     def generate_parking_spots(self):
         parking_spot_file = DIR + "/data/" + str(self.index) + ".json"
+        print("Reading : ", parking_spot_file)
 
         with open(parking_spot_file) as f:
             data = json.load(f)
@@ -92,7 +94,8 @@ class Cam():
             for region in regions:
                 if not region.get('region_attributes').get('Object') == 'Mask':
                     parking_spot_id = region.get('region_attributes').get('Object')
-                    parking_spot_id = parking_spot_id.replace("\n", "")
+                    if "\n" in parking_spot_id:
+                        parking_spot_id = parking_spot_id.replace("\n", "")
                     xList = region.get('shape_attributes').get('all_points_x')
                     yList = region.get('shape_attributes').get('all_points_y')
 
@@ -144,7 +147,8 @@ def func(key, ip, cam_status, mutex):
     ret, frame = capture.read()
     if ret:
         mutex.acquire()
-        cam_status[key] = True
+        ip = cam_status[key][1]
+        cam_status[key] = (True, ip)
         mutex.release()
 
 
@@ -152,9 +156,11 @@ def get_working_cams():
     manager = multiprocessing.Manager()
     mutex = manager.Lock()
     cam_status = manager.dict()
-
+    # "rtsp://192.168.0.101:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream
     for key in available_cams:
-        cam_status[key] = False
+        ip = available_cams.get(key)
+        ip = (ip.split(":554")[0]).split("rtsp://")[1]
+        cam_status[key] = (False, str(ip))
 
     print(cam_status)
     running_processes = []
@@ -179,9 +185,7 @@ def save_result(config):
     dict = {}
     for key in config.Active_Cams:
         cam = config.Active_Cams.get(key)
-        cam_id = cam.index
-        cam_id_str = "C" + str(cam_id)
-        dict[cam_id_str] = cam.isSpotOccupied
+        dict[cam.index] = cam.isSpotOccupied
     with open(DIR_DATA + 'result.json', 'w') as json_file:
         json.dump(dict, json_file)
 

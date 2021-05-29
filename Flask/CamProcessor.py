@@ -62,7 +62,7 @@ def execute():
     while True:
         working_cams = get_working_cams()
         for key in config.Active_Cams:
-            dir_path = IMG_OUT_SAVE_PATH + "cam" + str(key)
+            dir_path = IMG_OUT_SAVE_PATH + str(key)
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
             cam = config.Active_Cams.get(key)
