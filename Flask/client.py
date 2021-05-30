@@ -111,7 +111,9 @@ def main():
                     # camIP = Camera IP
                     strQuery = strQuery + "UPDATE Hourly_Parking_Statistics SET [Date] = getdate(), IsOccupied = " + pvalue + " WHERE ParkingId = '" + str(pid) + "' AND Camera = '" + key + "';"
 
+                print("\n")
                 print(strQuery)
+                print("\n")
                 retry_flag = True
                 retry_count = 0
                 while retry_flag and retry_count < 5:
