@@ -1,5 +1,5 @@
 from mrcnn.config import Config
-from Flask.Config import ConfigServer, get_working_cams, save_result, clean_jsons
+from Flask.Config import ConfigServer, isCameraActive
 from mrcnn import model as modellib
 from keras.preprocessing.image import img_to_array
 from IPOperations.IPOperations import cam1_IP, getSpotResults, getSpotResultsAllFalse
@@ -44,7 +44,8 @@ def execute():
     # global config
     config = ConfigServer()
     config.configure()
-    save_result(config)
+    config.clean_jsons()
+    config.save_result()
 
     dev = config.GPU_Devices[0]
     os.environ["CUDA_VISIBLE_DEVICES"] = str(dev.index)
@@ -60,13 +61,13 @@ def execute():
     model.load_weights(MODEL_PATH, by_name=True)
 
     while True:
-        working_cams = get_working_cams()
-        for key in config.Active_Cams:
+        # working_cams = get_working_cams()
+        for key in config.Listed_Cams:
             dir_path = IMG_OUT_SAVE_PATH + str(key)
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
-            cam = config.Active_Cams.get(key)
-            isCamUP = working_cams.get(key)
+            cam = config.Listed_Cams.get(key)
+            isCamUP = isCameraActive(key, config)
             if isCamUP:
                 capture = cv2.VideoCapture(cam.cam_ip)
                 ret, image = capture.read()
@@ -115,9 +116,9 @@ def execute():
                 getSpotResultsAllFalse(cam)
                 print("Streaming Not for working for Cam : %d", key)
 
-            save_result(config)
+            config.save_result()
+            config.save_active_cams()
 
 
 if __name__ == '__main__':
-    clean_jsons()
     execute()

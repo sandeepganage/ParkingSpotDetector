@@ -92,7 +92,7 @@ def func(ip, cam_status, mutex):
 
 
 def main():
-    out_dir = "D:/capture/"
+    out_dir = "C:/capture/"
     while True:
         for cam_id in available_cams:
             manager = multiprocessing.Manager()

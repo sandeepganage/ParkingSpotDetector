@@ -1,18 +1,18 @@
 from builtins import str
-from threading import Lock
 from gpuinfo.nvidia import get_gpus
 from collections import OrderedDict
 from util.util import available_cams, DIR, cam_dimension
-from util.util import DIR_DATA, IMG_OUT_SAVE_PATH
+from util.util import DIR_DATA
 import json
 import natsort
 import numpy as np
 import multiprocessing
+import threading
 import time
 import cv2
 import os
 
-
+global bool
 class GPU():
     def __init__(self, index, name, total_memory, used_memory, free_memory):
         self.index = index
@@ -116,14 +116,20 @@ class Cam():
 class ConfigServer():
     def __init__(self):
         self.GPU_Devices = []
+        self.Listed_Cams = {}
         self.Active_Cams = {}
+        self.isCamUp = False
 
     def configure(self):
         for key in available_cams:
             cam = Cam(key, available_cams.get(key))
             cam.generate_global_mask()
             cam.generate_parking_spots()
-            self.Active_Cams[key] = cam
+            self.Listed_Cams[key] = cam
+
+            ip = available_cams.get(key)
+            ip = (ip.split(":554")[0]).split("rtsp://")[1]
+            self.Active_Cams[key] = (False, str(ip))
 
         for gpu in get_gpus():
             dict = gpu.__dict__
@@ -138,60 +144,53 @@ class ConfigServer():
                       mem.get('free_memory'))
             self.GPU_Devices.append(dev)
 
+    def save_result(self):
+        dict = {}
+        for key in self.Listed_Cams:
+            cam = self.Listed_Cams.get(key)
+            dict[cam.index] = cam.isSpotOccupied
+        with open(DIR_DATA + 'result.json', 'w') as json_file:
+            json.dump(dict, json_file)
 
-mutex = Lock()
+    def clean_jsons(self):
+        if os.path.exists(DIR_DATA + 'result.json'):
+            os.remove(DIR_DATA + 'result.json')
+        if os.path.exists(DIR_DATA + 'activeCams.json'):
+            os.remove(DIR_DATA + 'activeCams.json')
+
+    def save_active_cams(self):
+        with open(DIR_DATA + 'activeCams.json', 'w') as json_file:
+            json.dump(self.Active_Cams, json_file)
 
 
-def func(key, ip, cam_status, mutex):
-    capture = cv2.VideoCapture(ip)
-    ret, frame = capture.read()
+def camStatusThread(key, stream_ip, dict, mutex):
+    cap = cv2.VideoCapture(stream_ip)
+    ret, frame = cap.read()
     if ret:
         mutex.acquire()
-        ip = cam_status[key][1]
-        cam_status[key] = (True, ip)
+        dict[key] = True
         mutex.release()
 
 
-def get_working_cams():
+def isCameraActive(key, config):
+    cam = config.Listed_Cams.get(key)
+    stream_ip = cam.cam_ip
+
     manager = multiprocessing.Manager()
     mutex = manager.Lock()
-    cam_status = manager.dict()
-    # "rtsp://192.168.0.101:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream
-    for key in available_cams:
-        ip = available_cams.get(key)
-        ip = (ip.split(":554")[0]).split("rtsp://")[1]
-        cam_status[key] = (False, str(ip))
+    dict = manager.dict()
+    dict[key] = False
 
-    print(cam_status)
-    running_processes = []
-    for key in available_cams:
-        ip = available_cams.get(key)
-        process = multiprocessing.Process(target=func, args=(key, ip, cam_status, mutex,))
-        process.start()
-        running_processes.append(process)
+    process = multiprocessing.Process(target=camStatusThread, args=(key, stream_ip, dict, mutex,))
+    process.start()
 
-    time.sleep(15)
+    time.sleep(8)
+    process.terminate()
 
-    for process in running_processes:
-        process.terminate()
-    print(cam_status)
-    with open(DIR_DATA + 'activeCams.json', 'w') as json_file:
-        json.dump(cam_status.copy(), json_file)
+    print("Availability : ", dict)
+    if dict[key]:
+        IP = config.Active_Cams[key][1]
+        config.Active_Cams[key] = (dict[key], IP)
 
-    return cam_status
-
-
-def save_result(config):
-    dict = {}
-    for key in config.Active_Cams:
-        cam = config.Active_Cams.get(key)
-        dict[cam.index] = cam.isSpotOccupied
-    with open(DIR_DATA + 'result.json', 'w') as json_file:
-        json.dump(dict, json_file)
-
-
-def clean_jsons():
-    if os.path.exists(DIR_DATA + 'result.json'):
-        os.remove(DIR_DATA + 'result.json')
-    if os.path.exists(DIR_DATA + 'activeCams.json'):
-        os.remove(DIR_DATA + 'activeCams.json')
+    print(config.Active_Cams)
+    return dict[key]

@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
 import math
-
+from wrapt_timeout_decorator import *
+from time import sleep
 
 def AndOperationWithMask():
     img1 = "D:/DataOnly/ParkingManagement/Cam1/Masks/temp/01_20210309_180100.bmp"
@@ -70,5 +71,3 @@ def cyclic_learning_rates():
         b = 0.2 * epoch
         lr = 0.00101 + 0.001 * np.cos(b + np.cos(b + np.cos(b + np.cos(b + np.cos(b + np.cos(b + np.cos(b)))))))
         print(epoch," : ", lr)
-
-# cyclic_learning_rates()

@@ -1,22 +1,27 @@
 import cv2
+import http.client
 import requests
 import pyodbc
 import time
+import json
+from datetime import datetime
+from util.util import IMG_OUT_SAVE_PATH, DIR_DATA
+
 import os
 from util.util import IMG_OUT_SAVE_PATH, DIR_DATA
 
 # "MyProjectConnection": "server=tcp:rit-dbsvr-01.database.windows.net;database=JNPT;User id=ritdbadmin@rit-dbsvr-01;password=Aez@3105.db"
 
 
-server = 'tcp:rit-dbsvr-01.database.windows.net'
-database = 'JNPT'
-username = 'ritdbadmin@rit-dbsvr-01'
-password = 'Aez@3105.db'
+# server = 'tcp:rit-dbsvr-01.database.windows.net'
+# database = 'JNPT'
+# username = 'ritdbadmin@rit-dbsvr-01'
+# password = 'Aez@3105.db'
 
-#server = 'aaditechdb.database.windows.net'
-#database = 'JNPT_QA'
-#username = 'aaditechadmin'
-#password = 'AadiTech@123'
+server = 'aaditechdb.database.windows.net'
+database = 'JNPT_QA'
+username = 'aaditechadmin'
+password = 'AadiTech@123'
 
 conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=' + server + ';DATABASE=' + database + ';UID=' + username + ';PWD=' + password)
 cursor = conn.cursor()
@@ -111,9 +116,9 @@ def main():
                     # camIP = Camera IP
                     strQuery = strQuery + "UPDATE Hourly_Parking_Statistics SET [Date] = getdate(), IsOccupied = " + pvalue + " WHERE ParkingId = '" + str(pid) + "' AND Camera = '" + key + "';"
 
-                print("\n")
-                print(strQuery)
-                print("\n")
+               # print("\n")
+               # print(strQuery)
+               # print("\n")
                 retry_flag = True
                 retry_count = 0
                 while retry_flag and retry_count < 5:
@@ -131,5 +136,60 @@ def main():
         count += 1
 
 
+def main2():
+    url = IP + ":" + PORT + "/" + API
+    url_camStatus = IP + ":" + PORT + "/" + API_CamStatus
+
+    count = 0
+    while True:
+        response = requests.post(url).json()
+        response_camStatus = requests.post(url_camStatus).json()
+        print(response)
+        if count == 2:
+            print(count)
+            count = 0
+
+            for key in response:
+                tuple = response_camStatus.get(key)
+                isCamUP = tuple[0]
+                camIP = str(tuple[1])
+
+                if isCamUP:
+                    isCamUP = "1"
+                else:
+                    isCamUP = "0"
+                storedb(key, camIP,isCamUP)
+                result = response.get(key)
+                # print(result)
+                print(response)
+
+                cam_status = 0
+                if response_camStatus.get(key):
+                    cam_status = 1
+                for spot_result in result:
+                    pid = spot_result
+                    p_value = result.get(spot_result)
+
+                    if p_value:
+                        pvalue = "true"
+                    else:
+                        pvalue = "false"
+
+                    curr_time = datetime.now()
+                    curr_time = str(curr_time)
+
+                    payload = {"Date": curr_time, "IsOccupied": str(pvalue), "ParkingId": str(pid), "Camera": str(key)}
+                    payload_json = json.dumps(payload)
+
+                    headers = {
+                        'Content-Type': 'application/json', 'charset': 'utf-8'
+                    }
+                    resp = requests.post("http://122.186.213.190:8084/api/Parking/UpdateHourlyParking", data=payload_json, headers = headers, verify=False)
+                    print("Cam : ",str(key), "\tSlot : ",str(pid), "\tResult : ",str(pvalue),"\tPOST Status : ",resp.text)
+
+        time.sleep(10)
+        count += 1
+
+
 if __name__ == '__main__':
-    main()
+    main2()
