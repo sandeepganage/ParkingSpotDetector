@@ -81,5 +81,5 @@ available_cams = {  'C1': "rtsp://192.168.0.101:554/user=admin_password=oyXv12aW
                     'C72': "rtsp://192.168.0.172:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream"
                 }
 cam_dimension = (1296, 2304)
-available_model = {1: '2_PSD_Model_ep040_loss0.0855.h5'}
+available_model = {1: '4_PSD_Model_ep0160_loss0.0834.h5'}
 decision_threshold = 10

@@ -73,7 +73,6 @@ class Cam():
                         pts.append(pt)
 
                     pts = np.array([pts], dtype=np.int32)
-                    pts = np.array([pts], dtype=np.int32)
                     cv2.fillPoly(mask, pts, (255, 255, 255))
 
         self.globalMaskPoints = pts
