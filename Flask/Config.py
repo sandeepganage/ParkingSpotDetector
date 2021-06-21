@@ -3,11 +3,11 @@ from gpuinfo.nvidia import get_gpus
 from collections import OrderedDict
 from util.util import available_cams, DIR, cam_dimension
 from util.util import DIR_DATA
+from Flask.client import client_main
 import json
 import natsort
 import numpy as np
 import multiprocessing
-import threading
 import time
 import cv2
 import os
@@ -193,3 +193,9 @@ def isCameraActive(key, config):
 
     print(config.Active_Cams)
     return dict[key]
+
+
+def activateClient():
+    clientProcess = multiprocessing.Process(target=client_main, args=())
+    clientProcess.start()
+    return clientProcess

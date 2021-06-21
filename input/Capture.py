@@ -100,16 +100,18 @@ def main():
             cam_status = manager.dict()
             cam_status[0] = False
 
-            ip = available_cams.get(cam_id)
-            process = multiprocessing.Process(target=func, args=(ip, cam_status, mutex, ))
+            url = available_cams.get(cam_id)
+            process = multiprocessing.Process(target=func, args=(url, cam_status, mutex, ))
             process.start()
             time.sleep(5)
             process.terminate()
 
+            IP = (url.split(":554")[0]).split("rtsp://")[1]
+
             if not cam_status.get(0):
-                print("********** Streaming not working : Cam ID : ", str(cam_id))
+                print("Not working IP: ", str(IP))
             else:
-                capture = cv2.VideoCapture(ip)
+                capture = cv2.VideoCapture(url)
                 ret, frame = capture.read()
 
                 if ret:
@@ -130,7 +132,7 @@ def main():
                     tile_number = tile_number.split(".")[0]
                     tile_number = tile_number.replace(":", "_")
                     cv2.imwrite(cam_dir + "/" + tile_number + ".png", tile)
-                    print("Stream captured saved for cam : ", str(cam_id))
+                    print("Working IP : ", str(IP))
                     cv2.destroyAllWindows()
 
         time.sleep(60)

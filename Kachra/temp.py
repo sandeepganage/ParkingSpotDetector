@@ -71,3 +71,31 @@ def cyclic_learning_rates():
         b = 0.2 * epoch
         lr = 0.00101 + 0.001 * np.cos(b + np.cos(b + np.cos(b + np.cos(b + np.cos(b + np.cos(b + np.cos(b)))))))
         print(epoch," : ", lr)
+
+
+def getTimeDifference():
+    import time
+    start = time.time()
+
+    time.sleep(10)  # or do something more productive
+
+    done = time.time()
+    elapsed = done - start
+    print(elapsed)
+
+
+def getDayOrNightTime():
+    import time
+    localtime = time.localtime()
+    print(localtime)
+    if localtime.tm_hour > 18:
+        print("Its Night!")
+    elif localtime.tm_hour < 6:
+            print("Its Night!")
+    else:
+        print("Its Day!")
+
+
+
+getDayOrNightTime()
+# getTimeDifference()

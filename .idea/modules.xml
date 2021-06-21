@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://D:/NewLPR/.idea/NewLPR.iml" filepath="D:/NewLPR/.idea/NewLPR.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/PSD.iml" filepath="$PROJECT_DIR$/.idea/PSD.iml" />
     </modules>
   </component>

@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 from util.util import decision_threshold
 
+
 class IPOperations:
     def __init__(self, ):
         self.name = "obj"

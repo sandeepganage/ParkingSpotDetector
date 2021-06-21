@@ -76,8 +76,7 @@ def storedb(key, isCamUP, camIP):
     }
 
     respo = requests.post("https://api.jnptparking.in/api/Parking/UpdateParkingImage", data=payload_json_image, headers=headers_image, verify=False)
-    # respo = requests.post("http://122.186.213.190:8084/api/Parking/UpdateParkingImage", data=payload_json_image,
-    #                         headers=headers_image, verify=False)
+    # respo = requests.post("http://122.186.213.190:8084/api/Parking/UpdateParkingImage", data=payload_json_image, headers=headers_image, verify=False)
     print("Image POST Status : ",respo.text)
 
 
@@ -135,6 +134,13 @@ def main():
     while True:
         # json_result = requests.post(url).json()
         # json_camStatus = requests.post(url_camStatus).json()
+        while not os.path.exists(json_camStatus_path):
+            time.sleep(5)
+            print("Result not ready yet! Waiting..")
+
+        while not os.path.exists(json_result_path):
+            time.sleep(5)
+            print("Result not ready yet! Waiting..")
 
         with open(json_result_path) as f:
             json_result = json.load(f)
@@ -158,7 +164,8 @@ def main():
                     isCamUP = "0"
                 storedb(key, isCamUP, camIP)
                 result = json_result.get(key)
-                print(json_result)
+                # print(json_result)
+                print("Updating Cam result : ",key)
 
                 for spot_result in result:
                     pid = spot_result
@@ -184,10 +191,14 @@ def main():
 
                     # print("Cam : ",str(key), "\tSlot : ",str(pid), "\tResult : ",str(pvalue),"\tPOST Status : ",resp.text)
 
-        time.sleep(10)
+        time.sleep(5)
         count += 1
 
 
-if __name__ == '__main__':
+def client_main():
     generate_compare_masks()
     main()
+
+# if __name__ == '__main__':
+#     generate_compare_masks()
+#     main()

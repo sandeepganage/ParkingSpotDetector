@@ -27,7 +27,7 @@ available_cams = {  'C1': "rtsp://192.168.0.101:554/user=admin_password=oyXv12aW
                     # 'C18': "rtsp://192.168.0.118:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
                     'C19': "rtsp://192.168.0.119:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
                     'C20': "rtsp://192.168.0.120:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
-                    # 'C21': "rtsp://192.168.0.121:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
+                    'C21': "rtsp://192.168.0.121:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
                     'C22': "rtsp://192.168.0.122:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
                     'C23': "rtsp://192.168.0.123:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
                     'C24': "rtsp://192.168.0.124:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
@@ -54,7 +54,7 @@ available_cams = {  'C1': "rtsp://192.168.0.101:554/user=admin_password=oyXv12aW
                     # 'C45': "rtsp://192.168.0.145:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
                     # 'C46': "rtsp://192.168.0.146:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
                     # 'C47': "rtsp://192.168.0.147:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
-                    # 'C48': "rtsp://192.168.0.148:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
+                    'C48': "rtsp://192.168.0.148:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
                     'C49': "rtsp://192.168.0.149:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
                     'C50': "rtsp://192.168.0.150:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
                     'C51': "rtsp://192.168.0.151:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
@@ -80,6 +80,7 @@ available_cams = {  'C1': "rtsp://192.168.0.101:554/user=admin_password=oyXv12aW
                     'C71': "rtsp://192.168.0.171:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
                     'C72': "rtsp://192.168.0.172:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream"
                 }
+
 cam_dimension = (1296, 2304)
-available_model = {1: '4_PSD_Model_ep0160_loss0.0834.h5'}
-decision_threshold = 10
+available_model = {1: '4_PSD_Model_ep0160_loss0.0834.h5', 2: '2_PSD_NightModel_ep0191_loss0.0834.h5'}
+decision_threshold = 5

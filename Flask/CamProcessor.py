@@ -1,15 +1,19 @@
 from mrcnn.config import Config
-from Flask.Config import ConfigServer, isCameraActive
+from Flask.Config import ConfigServer, isCameraActive, activateClient
 from mrcnn import model as modellib
 from keras.preprocessing.image import img_to_array
 from IPOperations.IPOperations import cam1_IP, getSpotResults, getSpotResultsAllFalse
 from Mask.tileUtility import *
 from util.util import DIR_DATA, IMG_OUT_SAVE_PATH
 import cv2
+import time
+
 # global config
 
 StaticDebugMode = False
 saveDebugRes = True
+global clientProcess
+global isClientRunning
 
 
 class myMaskRCNNConfig(Config):
@@ -41,7 +45,12 @@ class myMaskRCNNConfig(Config):
 
 
 def execute():
-    # global config
+    global clientProcess
+    global isClientRunning
+    isClientRunning = False
+    start_time = 0
+    end_time = 0
+
     config = ConfigServer()
     config.configure()
     config.clean_jsons()
@@ -54,14 +63,23 @@ def execute():
     modelConfig.display()
 
     # Loading the model in the inference mode
-    model = modellib.MaskRCNN(mode="inference", config=modelConfig, model_dir='./')
+    model_day = modellib.MaskRCNN(mode="inference", config=modelConfig, model_dir='./')
+    model_night = modellib.MaskRCNN(mode="inference", config=modelConfig, model_dir='./')
 
     # loading the trained weights o the custom dataset
-    MODEL_PATH = DIR_DATA + available_model.get(1)
-    model.load_weights(MODEL_PATH, by_name=True)
+    MODEL_PATH_DAY = DIR_DATA + available_model.get(1)
+    MODEL_PATH_NIGHT = DIR_DATA + available_model.get(2)
+
+    model_day.load_weights(MODEL_PATH_DAY, by_name=True)
+    model_night.load_weights(MODEL_PATH_NIGHT, by_name=True)
 
     while True:
-        # working_cams = get_working_cams()
+        if not isClientRunning:
+            print("Staring client")
+            clientProcess = activateClient()
+            start_time = time.time()
+            isClientRunning = True
+
         for key in config.Listed_Cams:
             dir_path = IMG_OUT_SAVE_PATH + str(key)
             if not os.path.exists(dir_path):
@@ -78,7 +96,7 @@ def execute():
                     print("Streaming Not for working for Cam : %d", key)
                 else:
                     if StaticDebugMode:
-                        image = DIR_DATA + str(key)+"Ref.png"
+                        image = DIR_DATA + str(key) + "Ref.png"
                         image = cv2.imread(image)
 
                     else:
@@ -94,7 +112,10 @@ def execute():
                         mask_list = []
                         for tile in tiles:
                             img = img_to_array(tile)
-                            results = model.detect([img], verbose=1)
+                            if isDayTime():
+                                results = model_day.detect([img], verbose=1)
+                            else:
+                                results = model_night.detect([img], verbose=1)
                             r = results[0]
                             # visualize.display_instances(img, r['rois'], r['masks'], r['class_ids'], r['scores'], title="Predictions")
                             masks = r['masks']
@@ -118,6 +139,35 @@ def execute():
 
             config.save_result()
             config.save_active_cams()
+
+        end_time = time.time()
+        elapsed = end_time - start_time
+        print("Start_time : ", start_time, "\tEnd_time : ", end_time, "\tElapsed_Time : ",
+              elapsed)
+        if elapsed > 300:
+            start_time = 0
+            print("TimeOut. Terminating Client Code..")
+            clientProcess.terminate()
+            isClientRunning = False
+
+        if not clientProcess.is_alive():
+            start_time = 0
+            print("Network disconnected. Terminating Client Code..")
+            isClientRunning = False
+
+
+def isDayTime():
+    localtime = time.localtime()
+    print(localtime)
+    if localtime.tm_hour > 18:
+        print("Its Night!")
+        return False
+    elif localtime.tm_hour < 6:
+            print("Its Night!")
+            return False
+    else:
+        print("Its Day!")
+        return True
 
 
 if __name__ == '__main__':
