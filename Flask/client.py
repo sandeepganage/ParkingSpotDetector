@@ -13,18 +13,18 @@ urllib3.disable_warnings()
 
 # "MyProjectConnection": "server=tcp:rit-dbsvr-01.database.windows.net;database=JNPT;User id=ritdbadmin@rit-dbsvr-01;password=Aez@3105.db"
 
-server = 'tcp:rit-dbsvr-01.database.windows.net'
+server = 'tcp:azinwipresdb01.database.windows.net'
 database = 'JNPT'
-username = 'ritdbadmin@rit-dbsvr-01'
-password = 'Aez@3105.db'
+username = 'ritescdbsuser@azinwipresdb01'
+password = 'ZU5ima5@BXS3mYlazXhSy'
 
 # server = 'aaditechdb.database.windows.net'
 # database = 'JNPT_QA'
 # username = 'aaditechadmin'
 # password = 'AadiTech@123'
 
-conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=' + server + ';DATABASE=' + database + ';UID=' + username + ';PWD=' + password)
-cursor = conn.cursor()
+# conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=' + server + ';DATABASE=' + database + ';UID=' + username + ';PWD=' + password)
+# cursor = conn.cursor()
 # conn = pyodbc.connect("DRIVER={SQL Server}; SERVER=localhost\SQLEXPRESS; Database=ParkingAi; trusted_connection=YES;")
 
 

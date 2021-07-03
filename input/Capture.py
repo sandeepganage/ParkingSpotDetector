@@ -78,7 +78,16 @@ available_cams = {
                     69: "rtsp://192.168.0.169:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
                     70: "rtsp://192.168.0.170:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
                     71: "rtsp://192.168.0.171:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
-                    72: "rtsp://192.168.0.172:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream"
+                    72: "rtsp://192.168.0.172:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
+                    88: "rtsp://192.168.0.188:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
+                    89: "rtsp://192.168.0.189:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
+                    90: "rtsp://192.168.0.190:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
+                    91: "rtsp://192.168.0.191:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
+                    92: "rtsp://192.168.0.192:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
+                    93: "rtsp://192.168.0.193:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
+                    94: "rtsp://192.168.0.194:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
+                    95: "rtsp://192.168.0.195:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream",
+                    96: "rtsp://192.168.0.196:554/user=admin_password=oyXv12aW_channel=1_stream=0.sdp?real_stream"
                 }
 
 
