@@ -186,6 +186,17 @@ def cam1_IP(inpRGB, prediction):
     return out
 
 
+def blurr_outside_roi(img, global_mask):
+    img1 = img.copy()
+    img2 = img.copy()
+    img1[global_mask == 0] = 0
+    img2[global_mask != 0] = 0
+    for i in range (1, 50):
+        img2 = cv2.GaussianBlur(img2, (5,5), 0)
+    img3 = cv2.bitwise_or(img2, img1)
+    return img3
+
+
 def cam1_IP(inpRGB, dl_out, camID):
     out_dir = "D:/debug/"+"cam"+str(camID)+"/"
     save_result = False

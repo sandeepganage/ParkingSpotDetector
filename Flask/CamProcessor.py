@@ -2,7 +2,7 @@ from mrcnn.config import Config
 from Flask.Config import ConfigServer, isCameraActive, activateClient
 from mrcnn import model as modellib
 from keras.preprocessing.image import img_to_array
-from IPOperations.IPOperations import cam1_IP, getSpotResults, getSpotResultsAllFalse
+from IPOperations.IPOperations import cam1_IP, getSpotResults, getSpotResultsAllFalse, blurr_outside_roi
 from Mask.tileUtility import *
 from util.util import DIR_DATA, IMG_OUT_SAVE_PATH
 import cv2
@@ -102,7 +102,9 @@ def execute():
                     else:
                         image = image.astype(np.uint8)
                         cv2.polylines(image, cam.globalMaskPoints, True, (0, 255, 0), thickness=3)
-                        cv2.imwrite(dir_path + "/0_rgb.jpg", image)
+
+                        blurred_Non_roi = blurr_outside_roi(image, cam.globalMaskImage)
+                        cv2.imwrite(dir_path + "/0_rgb.jpg", blurred_Non_roi)
 
                         image[cam.globalMaskImage == 0] = 0
 
