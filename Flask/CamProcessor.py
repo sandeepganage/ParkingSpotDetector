@@ -144,8 +144,7 @@ def execute():
 
         end_time = time.time()
         elapsed = end_time - start_time
-        print("Start_time : ", start_time, "\tEnd_time : ", end_time, "\tElapsed_Time : ",
-              elapsed)
+        # print("Start_time : ", start_time, "\tEnd_time : ", end_time, "\tElapsed_Time : ", elapsed)
         if elapsed > 300:
             start_time = 0
             print("TimeOut. Terminating Client Code..")
@@ -160,15 +159,15 @@ def execute():
 
 def isDayTime():
     localtime = time.localtime()
-    print(localtime)
+    # print(localtime)
     if localtime.tm_hour > 18:
-        print("Its Night!")
+        # print("Its Night!")
         return False
     elif localtime.tm_hour < 6:
-            print("Its Night!")
+            # print("Its Night!")
             return False
     else:
-        print("Its Day!")
+        # print("Its Day!")
         return True
 
 

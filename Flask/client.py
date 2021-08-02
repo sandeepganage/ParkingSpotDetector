@@ -63,10 +63,10 @@ def storedb(key, isCamUP, camIP):
     print("Camera Status for cam: ",key," : ",isCamUP)
     if isCamUP == "1":
         isCamUP = True
-        print("Camera Status for cam: ", key, " : ", isCamUP)
+        # print("Camera Status for cam: ", key, " : ", isCamUP)
     else:
         isCamUP = False
-        print("Camera Status for cam: ", key, " : ", isCamUP)
+        # print("Camera Status for cam: ", key, " : ", isCamUP)
     img_base64 = base64.b64encode(image_bytes).decode("utf8")
     payload_image = {"UpdateTime": current_time, "LatestImage": img_base64, "IsLive": isCamUP, "Camera": str(key), "IPAddress": str(camIP)}
     payload_json_image = json.dumps(payload_image)
@@ -77,7 +77,7 @@ def storedb(key, isCamUP, camIP):
 
     respo = requests.post("https://api.jnptparking.in/api/Parking/UpdateParkingImage", data=payload_json_image, headers=headers_image, verify=False)
     # respo = requests.post("http://122.186.213.190:8084/api/Parking/UpdateParkingImage", data=payload_json_image, headers=headers_image, verify=False)
-    print("Image POST Status : ",respo.text)
+    print(key, ": Image POST Status 1 : ",respo.text)
 
 
 def generate_compare_masks():
@@ -165,7 +165,7 @@ def main():
                 storedb(key, isCamUP, camIP)
                 result = json_result.get(key)
                 # print(json_result)
-                print("Updating Cam result : ",key)
+                # print("Updating Cam result :/ ",key)
 
                 for spot_result in result:
                     pid = spot_result
@@ -187,6 +187,7 @@ def main():
                     }
 
                     resp = requests.post("https://api.jnptparking.in/api/Parking/UpdateHourlyParking", data=payload_json, headers=headers, verify=False)
+                    # print(key, ": Image POST Status 2 : ", resp.text)
                     # resp = requests.post("http://122.186.213.190:8084/api/Parking/UpdateHourlyParking", data=payload_json, headers = headers, verify=False)
 
                     # print("Cam : ",str(key), "\tSlot : ",str(pid), "\tResult : ",str(pvalue),"\tPOST Status : ",resp.text)
